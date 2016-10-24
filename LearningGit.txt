@@ -1,0 +1,102 @@
+Git
+	分布式版本管理系统
+	安装
+		Linux/unix
+			sudo apt-get install git
+		Mac
+			1, 安装homebrew，通过homebrew安装Git
+			2, 从AppStore安装Xcode，Xcode集成了Git，默认没有安装，需要运行Xcode选择Preferences -> Downloads -> Command Line Tools -> Install
+		Windows
+			安装msysgit（Windows版的Git）
+	设置
+		git config --global user.name "xxx"
+		git config --global user.email "xxx@xx.com"
+	创建版本库
+		1，创建一个空目录
+			mkdir learngit
+			cd learngit
+			注意：如果使用Windows系统，确保目录中不包含中文。
+		2，把此目录变成Git可以管理的仓库
+			git init
+		建议所有文件都用UTF-8编码
+	将文件放入Git仓库
+		1，把文件添加到仓库
+			git add readme.txt
+		2，把文件提交到仓库
+			git commit -m "本次提交的说明"
+	查看仓库当前的状态(是否提交，是否修改)
+		git status
+	查看具体修改了什么
+		git diff readme.txt
+	版本回退
+		查看从最近到最远的提交历史记录
+			git log
+			git log --pretty=oneline
+		回退到上一个版本
+			git reset --hard HEAD^
+				HEAD表示当前版本，上一个版本是HEAD^,上上个版本是HEAD^^,...,往上100个版本是HEAD~100
+		回到未来的某个版本
+			git reset --hard xxx(commit id,提交版本号，可以不写全)
+		查看每一次命令记录
+			git reflog
+	工作区和暂存区
+		工作区
+			电脑里能看到的目录，如learngit文件夹
+		版本库
+			隐藏目录.git，不是工作区，是Git的版本库
+			版本库里存了很多东西
+				暂存区stage或index
+				Git自动创建的第一个分支master
+				指向master的一个指针HEAD
+		暂存区
+			stage（或者index）
+			git add把文件添加进去，实际上是把文件修改添加到暂存区；
+			git commit提交更改，实际上是把暂存区的所有内容提交到当前分支（master）。
+	撤销修改
+		丢弃工作区的修改
+			git checkout -- readme.txt
+			两种情况
+				1，修改后还没有被放到暂存区，撤销修改就回到和版本库一致的状态
+				2，已经添加到暂存区后又做了修改，撤销修改就回到添加到暂存区后的状态
+		撤销暂存区的修改，重新放回工作区
+			git reset HEAD readme.txt
+			git reset既可以回退版本，也可以把暂存区的修改回退到工作区。使用HEAD表示最新的版本。
+			
+		总结：
+			1，当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令git checkout -- file。
+			2，当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步,
+				第一步，用命令git reset HEAD file，就回到了1
+				第二步，按1操作
+			3，当已经提交了不合适的修改到版本库时，想要撤销本次提交，使用版本回退(git reset --hard xxx)，不过前提是没有推送到远程库。
+	删除文件
+		在工作区删除
+			rm readme.txt
+			此时工作区和版本库就不一致，有两个选择：
+				1，确实要从版本库中删除，使用git rm，然后git commit
+					git rm test.txt
+					git commit -m "remove file"
+				2，删错了，可以很轻松地把误删的文件恢复到最新版本
+					git checkout -- test.txt
+	远程仓库
+		使用GitHub作为远程仓库服务器
+			1，注册GitHub账号
+			2，在本地创建SSH Key
+				ssh-keygen -t rsa -C "xxx@xx.com"
+				主目录里.ssh目录里面有id_rsa(私钥)和id_rsa.pub(公钥)两个文件
+			3，登录GitHub，在settings -> SSH keys -> Add SSH Key,填上title，Key文本框里粘贴id_rsa.pub文件的内容
+			注意：在GitHub上免费托管的Git仓库，任何人都可以看到
+		添加远程仓库
+			1，登录GitHub -> Create a new repo按钮，创建一个新的仓库learngit
+			2，在本地仓库下运行
+				git remote add origin git@github.com:xxx/learngit.git(xxx是GitHub账户名)
+			3，把本地库的所有内容推送到远程库上
+				git push -u origin master(实际上是把当前分支master推送到远程)
+				第一次推送master分支时，加上了-u参数，Git不但会把本地的master分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，在以后的推送或者拉取时就可以简化命令
+				git push origin master
+		从远程库克隆
+			git clone git@github.com:xxx/hello-world.git
+			GitHub支持多种协议(SSH,HTTPS...),还可以用https://github.com/michaelliao/gitskills.git这样的地址
+			默认的git://使用ssh
+			https除了速度慢，每次推送都必须输入口令；但是在某些只开放http端口的公司内部就无法使用ssh协议而只能用https
+		
+		
