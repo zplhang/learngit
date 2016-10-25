@@ -99,4 +99,27 @@ Git
 			默认的git://使用ssh
 			https除了速度慢，每次推送都必须输入口令；但是在某些只开放http端口的公司内部就无法使用ssh协议而只能用https
 		
+	分支管理
+		
+		创建分支
+			创建dev分支并切换到dev分支
+				git checkout -b dev(-b表示创建并切换)
+				相当于
+					git branch dev
+					git checkout dev
+			查看当前分支
+				git branch(列出所有分支，当前分支前标上*)
+			切换回master分支
+				git checkout master
+		合并分支
+			将dev分支的修改合并到master分支
+				git merge dev(合并指定分支到当前分支)
+		删除分支
+			合并完成后，可以删除dev分支
+				git branch -d dev
+			查看当前分支，只剩下master分支
+				git branch
+		解决冲突
+		分支管理策略
+		Bug分支
 		
