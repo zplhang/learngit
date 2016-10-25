@@ -100,7 +100,6 @@ Git
 			https除了速度慢，每次推送都必须输入口令；但是在某些只开放http端口的公司内部就无法使用ssh协议而只能用https
 		
 	分支管理
-		
 		创建分支
 			创建dev分支并切换到dev分支
 				git checkout -b dev(-b表示创建并切换)
@@ -219,29 +218,86 @@ Git
 				3，如果合并有冲突，则解决冲突，并在本地提交
 				4，没有冲突或解决冲突后，再用git push origin branch-name推送
 				5，如果git pull提示“no tracking information”，则说明本地分支和远程分支的链接关系没有创建，用命令git branch --set-upstream branch-name origin/branch-name
-		标签管理
-			发布版本时，通常先在版本库中打一个标签(tag)，唯一确定了打标签时刻的版本。
-			标签是版本库的快照，其实它就是指向某个commit的指针，所以，创建和删除标签都是瞬间完成的
-			tag就是一个让人容易记住的有意义的名字，它跟某个commit绑在一起。
-			与分支区别：tag不能移动，分支可以移动
-			创建标签
-				1，切换到需要打标签的分支上
-					git branch
-					git checkout master
-				2，打上新标签
-					git tag V1.0
-			查看所有标签(按字母顺序列出，不是按时间顺序列出)
-				git tag
-			默认标签打在最新提交的commit上，如何给历史commit打标签？
-				先找到历史commit的id，然后打上标签
-				git log --pretty=oneline --abbrev-commit
-				git tag V0.9 XXX(commit id)
-			查看标签信息
-				git show V0.9
-			创建带有说明的标签
-				git tag -a V0.2 -m "version 0.2 released" xxx(commit id)
-			创建带私钥签名的标签(签名采用PGP签名，必须首先安装gpg)
-				git tag -s V0.2 -m "signed version 0.2 released" xxx(commit id)
+	标签管理
+		发布版本时，通常先在版本库中打一个标签(tag)，唯一确定了打标签时刻的版本。
+		标签是版本库的快照，其实它就是指向某个commit的指针，所以，创建和删除标签都是瞬间完成的
+		tag就是一个让人容易记住的有意义的名字，它跟某个commit绑在一起。
+		与分支区别：tag不能移动，分支可以移动
+		创建标签
+			1，切换到需要打标签的分支上
+				git branch
+				git checkout master
+			2，打上新标签
+				git tag V1.0
+		查看所有标签(按字母顺序列出，不是按时间顺序列出)
+			git tag
+		默认标签打在最新提交的commit上，如何给历史commit打标签？
+			先找到历史commit的id，然后打上标签
+			git log --pretty=oneline --abbrev-commit
+			git tag V0.9 XXX(commit id)
+		查看标签信息
+			git show V0.9
+		创建带有说明的标签
+			git tag -a V0.2 -m "version 0.2 released" xxx(commit id)
+		创建带私钥签名的标签(签名采用PGP签名，必须首先安装gpg)
+			git tag -s V0.2 -m "signed version 0.2 released" xxx(commit id)
+		操作标签
+			删除标签
+				git tag -d v0.1
+			推送标签到远程
+				git push origin v0.1
+			一次性推送全部尚未推送的本地标签
+				git push origin --tags
+			从远程删除标签
+				1，先删除本地标签
+					git tag -d v0.9
+				2，然后从远程删除
+					git push origin :refs/tags/v0.9
+	使用GitHub
+		访问开源项目的主页，Fork，在自己账户下克隆一个仓库，然后在自己的账户下clone。
+			git clone git@github.com:xxx/xxxx.git
+		一定要在自己的账号下clone仓库，这样才能推送修改。如果从作者的仓库地址克隆，没有权限，不能推送修改。
+		可以在GitHub上发起一个pull request，给官方仓库贡献代码。但是，对方是否接受你的pull request就不一定了。
+	忽略特殊文件
+		有些时候，你必须把某些文件放到Git工作目录中，但又不能提交它们(比如保存了数据库密码的配置文件)，每次git status都会显示Untracked files ...
+		在Git工作区的根目录下创建一个特殊的.gitignore文件，然后把要忽略的文件名填进去，Git就会自动忽略这些文件
+		编辑好后将.gitignore文件提交到Git，可以对.gitignore文件做版本管理
+		注意：有时候想添加一个文件到Git，发现添加不了，原因是该文件被.gitignore忽略了。
+		如果确实想添加该文件，可以使用-f参数强制添加
+			git add -f xxx.class
+		可以使用git check-ignore命令检查.gitignore哪个规则忽略了文件
+			git check-ignore -v xxx.class
+	配置别名
+		有些命令太长不好记，可以使用别名
+			git config --global alias.st status (git status可以用git st代替)
+			git config --global alias.co checkout
+			git config --global alias.ci commit
+			git config --global alias.br branch
+			git config --global alias.unstage 'reset HEAD'(撤销暂存区的修改)
+			git config --global alias.last 'log -1'(显示最近一次的提交)
+			git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 			
-				
-		
+	搭建Git服务器
+		需要准备一台运行Linux的机器
+		1，安装git
+			sudo apt-get install git
+		2，创建一个git用户，用来运行git服务
+			sudo adduser git
+		3，创建证书登录
+			收集所有需要登录的用户的公钥(他们自己的id_rsa.pub文件)，把公钥导入/home/git/.ssh/authorized_keys文件里，一行一个。
+		4，初始化Git仓库
+			选定一个目录作为Git仓库，假定是/srv/sample.git
+			在/srv下输入命令：sudo git init --bare sample.git 创建一个裸仓库，没有工作区
+			将owner改为git用户：sudo chown -R git:git sample.git
+		5，禁用shell登录
+			出于安全考虑，不允许git用户登录shell，可通过编辑/etc/passwd文件完成
+			找到类似 git:x:1001:1001:,,,:/home/git:/bin/bash，改为 git:x:1001:1001:,,,:/home/git:/usr/bin/git-shell
+			这样git用户可以正常通过ssh使用git，但不能登录shell
+		6，在各自的电脑上，克隆远程仓库
+			git clone git@server:/srv/sample.git
+		要方便管理公钥，使用Gitosis
+		要像SVN那样控制权限，使用Gitolite
+	
+	附录
+		Git Cheat Sheet中文版.pdf
+		Git Cheat Sheet.pdf
